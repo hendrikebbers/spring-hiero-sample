@@ -1,8 +1,10 @@
 package com.openelements.hiero.spring.sample;
 
+import com.openelements.hiero.spring.EnableHiero;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+@EnableHiero
 @SpringBootApplication
 public class Application {
 
