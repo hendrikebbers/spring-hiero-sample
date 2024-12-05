@@ -48,6 +48,20 @@ public class ViewController {
         return "index";
     }
 
+    @RequestMapping(value = "/burnall", method = RequestMethod.POST)
+    public String burnAllNfts(final Model model) throws Exception {
+        nftRepository.findByOwner(hieroContext.getOperatorAccount().accountId())
+                .getData().forEach(nft -> {
+                    try {
+                        nftClient.burnNft(nft.tokenId(), nft.serial());
+                    } catch (HieroException e) {
+                        throw new RuntimeException("Can not burn NFT", e);
+                    }
+                });
+        updateModel(model);
+        return "index";
+    }
+
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(final Model model) throws Exception {
         updateModel(model);

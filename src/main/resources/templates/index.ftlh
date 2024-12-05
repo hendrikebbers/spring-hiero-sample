@@ -4,6 +4,8 @@
 <body>
 <form>
   <button type="submit" formaction="/mint" formmethod="post">Mint Nft</button>
+  <button type="submit" formaction="/burnall" formmethod="post">Burn all Nfts</button>
+  <button type="submit" formaction="/" formmethod="get">Refresh</button>
 </form>
 <table>
   <tr>
