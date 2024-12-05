@@ -1,4 +1,4 @@
-package com.openelements.hiero.spring.sample;
+package org.hiero.spring;
 
 import com.hedera.hashgraph.sdk.AccountId;
 import com.hedera.hashgraph.sdk.TokenId;

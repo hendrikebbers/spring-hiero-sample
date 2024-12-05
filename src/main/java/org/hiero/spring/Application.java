@@ -1,4 +1,4 @@
-package com.openelements.hiero.spring.sample;
+package org.hiero.spring;
 
 import com.openelements.hiero.spring.EnableHiero;
 import org.springframework.boot.SpringApplication;
