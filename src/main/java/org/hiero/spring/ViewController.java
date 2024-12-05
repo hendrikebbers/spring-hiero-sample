@@ -28,22 +28,19 @@ public class ViewController {
     private final TokenId nftType;
 
     @Autowired
-    public ViewController(HieroContext hieroContext, NftRepository nftRepository, NftClient nftClient) {
+    public ViewController(HieroContext hieroContext, NftRepository nftRepository, NftClient nftClient)
+            throws HieroException {
         this.hieroContext = hieroContext;
         this.nftRepository = nftRepository;
         this.nftClient = nftClient;
 
-        try {
-            nftType = nftClient.createNftType("HieroNft", "HT");
-        } catch (HieroException e) {
-            throw new RuntimeException("Error in creating the NFT", e);
-        }
+        nftType = nftClient.createNftType("HieroNft", "HT");
     }
 
     @RequestMapping(value = "/mint", method = RequestMethod.POST)
     public String createNft(final Model model) throws Exception {
-        nftClient.mintNft(nftType,
-                DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()).getBytes(StandardCharsets.UTF_8));
+        String metadata = DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now());
+        nftClient.mintNft(nftType, metadata.getBytes(StandardCharsets.UTF_8));
         updateModel(model);
         return "index";
     }
