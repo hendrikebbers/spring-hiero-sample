@@ -1,12 +1,14 @@
 package com.openelements.hiero.spring.sample;
 
 import com.hedera.hashgraph.sdk.AccountId;
+import com.hedera.hashgraph.sdk.TokenId;
 import com.openelements.hiero.base.HieroContext;
-import com.openelements.hiero.base.data.Nft;
-import com.openelements.hiero.base.data.Page;
+import com.openelements.hiero.base.HieroException;
+import com.openelements.hiero.base.NftClient;
 import com.openelements.hiero.base.mirrornode.NftRepository;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,36 +23,46 @@ public class ViewController {
 
     private final NftRepository nftRepository;
 
+    private final NftClient nftClient;
+
+    private final TokenId nftType;
+
     @Autowired
-    public ViewController(HieroContext hieroContext, NftRepository nftRepository) {
+    public ViewController(HieroContext hieroContext, NftRepository nftRepository, NftClient nftClient) {
         this.hieroContext = hieroContext;
         this.nftRepository = nftRepository;
-    }
+        this.nftClient = nftClient;
 
-    private List<Nft> getAllNfts(AccountId owner) throws Exception {
-        return getAllNfts(nftRepository.findByOwner(owner), 10);
-    }
-
-    private List<Nft> getAllNfts(Page<Nft> nftPage, int maxDepth) throws Exception {
-        final List<Nft> result = new ArrayList<>();
-        result.addAll(nftPage.getData());
-        if (nftPage.hasNext() && maxDepth > 0) {
-            final Page<Nft> nextNftPage = nftPage.next();
-            result.addAll(getAllNfts(nextNftPage, maxDepth - 1));
+        try {
+            nftType = nftClient.createNftType("HieroNft", "HT");
+        } catch (HieroException e) {
+            throw new RuntimeException("Error in creating the NFT", e);
         }
-        return result;
+    }
+
+    @RequestMapping(value = "/mint", method = RequestMethod.POST)
+    public String createNft(final Model model) throws Exception {
+        nftClient.mintNft(nftType,
+                DateTimeFormatter.ISO_DATE_TIME.format(LocalDateTime.now()).getBytes(StandardCharsets.UTF_8));
+        updateModel(model);
+        return "index";
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(final Model model) throws Exception {
+        updateModel(model);
+        return "index";
+    }
+
+    private void updateModel(Model model) throws HieroException {
         AccountId owner = hieroContext.getOperatorAccount().accountId();
-        List<NftModel> nfts = getAllNfts(owner).stream()
+        List<NftModel> nfts = nftRepository.findByOwner(owner)
+                .getData().stream()
                 .map(nft -> new NftModel(nft.tokenId().toString(),
                         Long.toString(nft.serial()),
                         new String(nft.metadata(), StandardCharsets.UTF_8)))
                 .toList();
         model.addAttribute("nfts", nfts);
-        return "index";
     }
 
     public record NftModel(String name, String serial, String metadata) {

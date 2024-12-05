@@ -2,6 +2,9 @@
 <html lang="en">
 <head></head>
 <body>
+<form>
+  <button type="submit" formaction="/mint" formmethod="post">Mint Nft</button>
+</form>
 <table>
   <tr>
     <th>Name</th>
